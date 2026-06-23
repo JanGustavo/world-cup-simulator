@@ -1,5 +1,7 @@
 import numpy as np
 
+from models.teams import TEAMS
+
 class MatchModel:
     """Contrato para geração de resultados de partida."""
 
@@ -7,8 +9,11 @@ class MatchModel:
         # weight_factor = 0.0 significa sem pesos (ortogonal), > 0.0 significa ponderado
         self.weight_factor = weight_factor
         
-        # Força padrão dos times de 0 a 47 (0 é o mais forte [1.0], 47 é o mais fraco [0.0])
-        self.strengths = {t: (47 - t) / 47 for t in range(48)}
+        # Mapeia as forças baseadas nos ratings reais da FIFA (escalonado de 0.0 a 1.0)
+        ratings = [TEAMS[t]["rating"] for t in range(48)]
+        min_r, max_r = min(ratings), max(ratings)
+        self.strengths = {t: (TEAMS[t]["rating"] - min_r) / (max_r - min_r) for t in range(48)}
+
 
     def simulate_goals(self, home_team: int, away_team: int) -> tuple[int, int]:
         s_home = self.strengths.get(home_team, 0.5)

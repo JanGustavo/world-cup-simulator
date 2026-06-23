@@ -16,3 +16,24 @@ def consolidate(array: np.ndarray) -> dict:
             "probability": probability
         }
     return summary
+
+
+def consolidate_teams(array: np.ndarray) -> list[dict]:
+    """Calcula a probabilidade de classificação de cada seleção de forma vetorizada."""
+    from models.teams import TEAMS
+    
+    # O array tem formato linearizado (N * 48, 3). Reshaping a coluna 'passed' (índice 2) para (N, 48)
+    passed_matrix = array[:, 2].reshape(-1, 48)
+    rates = np.mean(passed_matrix, axis=0) # Média vertical fornece a taxa de passagem de cada time
+    
+    team_stats = []
+    for t in range(48):
+        team_stats.append({
+            "name": TEAMS[t]["name"],
+            "rating": TEAMS[t]["rating"],
+            "probability": float(rates[t])
+        })
+        
+    # Ordena pela maior probabilidade de classificação
+    team_stats.sort(key=lambda x: (x["probability"], x["rating"]), reverse=True)
+    return team_stats

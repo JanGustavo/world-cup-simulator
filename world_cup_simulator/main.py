@@ -2,7 +2,7 @@
 
 import sys
 from engine.simulator import run_simulation
-from stats.consolidator import consolidate
+from stats.consolidator import consolidate, consolidate_teams
 from ui.display import show
 
 # Detecta se está sendo executado no contexto do Streamlit usando a API oficial
@@ -61,9 +61,11 @@ if is_streamlit:
             model = MatchModel(weight_factor=weight_factor)
             raw_results = run_simulation(iterations=iterations, model=model)
             summary = consolidate(raw_results)
+            team_summary = consolidate_teams(raw_results)
             elapsed = time.perf_counter() - start
             
             st.session_state["simulation_summary"] = summary
+            st.session_state["simulation_team_summary"] = team_summary
             st.session_state["simulation_time"] = elapsed
             st.session_state["simulation_iterations"] = iterations
             st.toast("Simulação concluída com sucesso!", icon="✅")
@@ -71,7 +73,7 @@ if is_streamlit:
     # Exibe os resultados obtidos
     if "simulation_summary" in st.session_state:
         st.success(f"⚡ Simulação de {st.session_state['simulation_iterations']:,} copas concluída em **{st.session_state['simulation_time']:.3f} segundos**!")
-        show(st.session_state["simulation_summary"])
+        show(st.session_state["simulation_summary"], st.session_state.get("simulation_team_summary"))
     else:
         st.info("👈 Ajuste os parâmetros na barra lateral e clique em **Iniciar Simulação**.")
 
@@ -81,12 +83,17 @@ else:
     
     def main() -> None:
         import time
+        from models.match_model import MatchModel
+        
         start = time.perf_counter()
-        raw_results = run_simulation(iterations=iteracoes)
+        # No CLI padrão, assumimos modelo ponderado com fator 1.0 (ou 0.0 se quiser simétrico)
+        model = MatchModel(weight_factor=1.0)
+        raw_results = run_simulation(iterations=iteracoes, model=model)
         summary = consolidate(raw_results)
+        team_summary = consolidate_teams(raw_results)
         elapsed = time.perf_counter() - start
         
-        show(summary)
+        show(summary, team_summary)
         print(f"\n⚡ Simulação de {iteracoes:,} copas concluída em {elapsed:.3f} segundos!")
 
     if __name__ == "__main__":
