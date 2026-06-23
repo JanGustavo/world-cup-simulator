@@ -18,14 +18,14 @@ def show(summary: dict) -> None:
         st.subheader("📊 Estatísticas da Fase de Grupos")
         st.markdown("Probabilidade de classificação para o mata-mata com base nos pontos conquistados:")
 
-        # Organiza dados em formato estruturado para o Streamlit
+        # Organiza dados em formato estruturado para o Streamlit (multiplicando a probabilidade por 100)
         data = []
         for pontos, dados in summary.items():
             data.append({
                 "Pontos": pontos,
                 "Aparições": dados["appearances"],
                 "Classificações": dados["classifications"],
-                "Probabilidade": dados["probability"]
+                "Probabilidade (%)": dados["probability"] * 100
             })
         
         df = pd.DataFrame(data)
@@ -37,12 +37,12 @@ def show(summary: dict) -> None:
                 "Pontos": st.column_config.NumberColumn("Pontos", format="%d"),
                 "Aparições": st.column_config.NumberColumn("Aparições", format="%d"),
                 "Classificações": st.column_config.NumberColumn("Classificações", format="%d"),
-                "Probabilidade": st.column_config.ProgressColumn(
+                "Probabilidade (%)": st.column_config.ProgressColumn(
                     "Probabilidade de Classificação",
-                    help="Chance de passar de fase",
+                    help="Chance de passar de fase em porcentagem",
                     format="%.2f%%",
                     min_value=0.0,
-                    max_value=1.0,
+                    max_value=100.0,
                 ),
             },
             hide_index=True,
@@ -51,10 +51,8 @@ def show(summary: dict) -> None:
 
         # Exibição de Gráfico de Barras
         st.markdown("### 📈 Curva de Probabilidade por Pontos")
-        chart_df = df.copy()
-        chart_df["Probabilidade (%)"] = chart_df["Probabilidade"] * 100
         st.bar_chart(
-            chart_df,
+            df,
             x="Pontos",
             y="Probabilidade (%)",
             color="#2e7d32",

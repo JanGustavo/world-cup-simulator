@@ -79,7 +79,7 @@ if is_streamlit:
 
 else:
     # Fallback CLI padrão
-    iteracoes = 10_000
+    iteracoes = 10000
     
     def main() -> None:
         import time
@@ -92,4 +92,4 @@ else:
         print(f"\n⚡ Simulação de {iteracoes:,} copas concluída em {elapsed:.3f} segundos!")
 
     if __name__ == "__main__":
-        main()
+        main()  
