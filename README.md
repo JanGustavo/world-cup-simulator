@@ -100,3 +100,21 @@ Ao considerarmos o peso da força baseada no Rating FIFA real de cada país, as 
 | **13** | Colômbia | 1655 | **88.18%** |
 | **14** | Estados Unidos | 1661 | **87.87%** |
 | **15** | México | 1650 | **87.43%** |
+
+---
+
+## Análise de Complexidade (Big O)
+
+A arquitetura do motor de simulação foi desenhada com foco em alta eficiência, utilizando vetorização NumPy para computação em C.
+
+### 1. Complexidade de Tempo: $\mathcal{O}(N)$ (Linear)
+O tempo de execução escala de forma estritamente linear com o número total de iterações ($N$):
+*   **Simulação de Partidas**: Modelagem e geração de gols via distribuição de Poisson para 72 confrontos por copa: $\mathcal{O}(N \cdot 72) \rightarrow \mathcal{O}(N)$.
+*   **Ordenação dos Grupos**: Ordenação de $4$ seleções para cada um dos $12$ grupos de cada copa: $\mathcal{O}(N \cdot 12 \cdot (4 \log 4)) \rightarrow \mathcal{O}(N)$.
+*   **Mata-mata (Melhores Terceiros)**: Ordenação e filtragem dos $12$ terceiros colocados: $\mathcal{O}(N \cdot (12 \log 12)) \rightarrow \mathcal{O}(N)$.
+*   **Vetorização**: Como todo o loop pesado roda vetorizado através do NumPy, o coeficiente multiplicativo de tempo é extremamente baixo (1 milhão de copas simuladas em apenas ~13 segundos).
+
+### 2. Complexidade de Espaço: $\mathcal{O}(1)$ (Constante)
+Graças ao processamento em lotes (*batching*):
+*   O simulador quebra a execução em blocos de tamanho controlado de $B = 100.000$ iterações.
+*   A memória máxima ativa alocada na RAM permanece constante em $\mathcal{O}(B \cdot \text{constante}) \rightarrow \mathcal{O}(1)$ em relação ao total de iterações $N$, eliminando qualquer risco de estouro de memória (Out of Memory) mesmo para 100 milhões de simulações.
