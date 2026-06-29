@@ -25,6 +25,43 @@ LADO_DIREITO = [
     ("Colômbia", "Gana")                       # J16
 ]
 
+# Novos ratings atualizados exclusivos para o mata-mata
+MATA_MATA_RATINGS = {
+    "Alemanha": 1726.22,
+    "Paraguai": 1520.59,
+    "França": 1906.84,
+    "Suécia": 1525.58,
+    "África do Sul": 1451.24,
+    "Canadá": 1551.07,
+    "Países Baixos": 1775.50,
+    "Marrocos": 1776.40,
+    "Portugal": 1764.86,
+    "Croácia": 1723.05,
+    "Espanha": 1879.58,
+    "Áustria": 1598.82,
+    "Estados Unidos": 1677.17,
+    "Bósnia e Herzegovina": 1408.93,
+    "Bélgica": 1735.41,
+    "Senegal": 1653.43,
+    "Brasil": 1785.19,
+    "Japão": 1673.68,
+    "Costa do Marfim": 1565.47,
+    "Noruega": 1594.04,
+    "México": 1736.01,
+    "Equador": 1592.59,
+    "Inglaterra": 1840.46,
+    "República Democrática do Congo": 1495.48,
+    "Argentina": 1907.40,
+    "Cabo Verde": 1402.97,
+    "Austrália": 1581.35,
+    "Egito": 1584.71,
+    "Suíça": 1676.00,
+    "Argélia": 1576.80,
+    "Colômbia": 1729.30,
+    "Gana": 1387.00
+}
+
+
 # Normalizar nomes para mapeamento de IDs
 TEAM_NAME_TO_ID = {}
 for tid, info in TEAMS.items():
@@ -35,6 +72,18 @@ def get_team_id(name: str) -> int:
     if name_clean in TEAM_NAME_TO_ID:
         return TEAM_NAME_TO_ID[name_clean]
     raise ValueError(f"Time não encontrado: {name}")
+
+# Mapeamento de ID -> Novo Rating
+MATA_MATA_RATINGS_BY_ID = {}
+
+def init_knockout_ratings():
+    if not MATA_MATA_RATINGS_BY_ID:
+        for name, r in MATA_MATA_RATINGS.items():
+            try:
+                tid = get_team_id(name)
+                MATA_MATA_RATINGS_BY_ID[tid] = r
+            except ValueError:
+                pass
 
 def simulate_matches_vectorized(model: MatchModel, strengths_arr: np.ndarray, t1: np.ndarray, t2: np.ndarray) -> np.ndarray:
     """Simula M confrontos de mata-mata em paralelo para N iterações."""
@@ -69,7 +118,23 @@ def run_knockout_simulation(iterations: int, model: MatchModel = None) -> list[d
     if model is None:
         model = MatchModel(weight_factor=1.0)
         
-    strengths_arr = np.array([model.strengths.get(i, 0.5) for i in range(48)])
+    init_knockout_ratings()
+    
+    # Calcular as forças baseadas nos novos ratings
+    all_ratings = []
+    for t in range(48):
+        if t in MATA_MATA_RATINGS_BY_ID:
+            all_ratings.append(MATA_MATA_RATINGS_BY_ID[t])
+        else:
+            all_ratings.append(float(TEAMS[t]["rating"]))
+            
+    min_r = min(all_ratings)
+    max_r = max(all_ratings)
+    
+    strengths_arr = np.zeros(48, dtype=np.float64)
+    for t in range(48):
+        r = MATA_MATA_RATINGS_BY_ID[t] if t in MATA_MATA_RATINGS_BY_ID else float(TEAMS[t]["rating"])
+        strengths_arr[t] = (r - min_r) / (max_r - min_r)
     
     # Preparar IDs dos times iniciais
     left_t1_init = np.array([get_team_id(pair[0]) for pair in LADO_ESQUERDO], dtype=np.uint8)
@@ -145,7 +210,7 @@ def run_knockout_simulation(iterations: int, model: MatchModel = None) -> list[d
     for t in all_bracket_teams:
         results.append({
             "name": TEAMS[t]["name"],
-            "rating": TEAMS[t]["rating"],
+            "rating": MATA_MATA_RATINGS_BY_ID.get(t, float(TEAMS[t]["rating"])),
             "oitavas": float(oitavas_counts[t]) / iterations,
             "quartas": float(quartas_counts[t]) / iterations,
             "semis": float(semis_counts[t]) / iterations,

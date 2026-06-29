@@ -146,7 +146,7 @@ def show_knockout(results: list[dict]) -> None:
             df[["name", "rating", "Oitavas (%)", "Quartas (%)", "Semis (%)", "Final (%)", "Campeão (%)"]],
             column_config={
                 "name": "Seleção",
-                "rating": st.column_config.NumberColumn("Rating FIFA", format="%d"),
+                "rating": st.column_config.NumberColumn("Rating FIFA", format="%.2f"),
                 "Oitavas (%)": st.column_config.NumberColumn("Oitavas", format="%.2f%%"),
                 "Quartas (%)": st.column_config.NumberColumn("Quartas", format="%.2f%%"),
                 "Semis (%)": st.column_config.NumberColumn("Semis", format="%.2f%%"),
@@ -174,11 +174,11 @@ def show_knockout(results: list[dict]) -> None:
         
     else:
         # Saída padrão CLI
-        header = f"{'Seleção':<18} | {'Rating':^6} | {'Oitavas':^8} | {'Quartas':^8} | {'Semis':^8} | {'Final':^8} | {'Campeão':^8}"
+        header = f"{'Seleção':<18} | {'Rating':^8} | {'Oitavas':^8} | {'Quartas':^8} | {'Semis':^8} | {'Final':^8} | {'Campeão':^8}"
         divider = "-" * len(header)
         print(header)
         print(divider)
         for r in results[:15]:
-            print(f"{r['name']:<18} | {r['rating']:^6} | {r['oitavas']:>7.2%} | {r['quartas']:>7.2%} | {r['semis']:>7.2%} | {r['final']:>7.2%} | {r['campeao']:>7.2%}")
+            print(f"{r['name']:<18} | {r['rating']:^8.2f} | {r['oitavas']:>7.2%} | {r['quartas']:>7.2%} | {r['semis']:>7.2%} | {r['final']:>7.2%} | {r['campeao']:>7.2%}")
         if len(results) > 15:
             print(f"... e mais {len(results) - 15} seleções.")
