@@ -2,7 +2,7 @@
 
 Este projeto é um simulador estatístico para a Copa do Mundo FIFA de 48 seleções utilizando simulações de Monte Carlo. Ele calcula a probabilidade de cada pontuação na fase de grupos resultar em classificação para a fase de mata-mata.
 
-🚀 **Experimente online**: O simulador possui uma versão web interativa executada no Streamlit. Você pode acessar e realizar suas próprias simulações diretamente em: [simuladordepontoscopadomundo.streamlit.app](https://simuladordepontoscopadomundo.streamlit.app/)
+🚀 **Experimente online**: O simulador possui uma versão web interativa executada no Streamlit. Você pode acessar e realizar suas próprias simulações diretamente em: [https://world-cup-simulator-python.streamlit.app/](https://simuladordepontoscopadomundo.streamlit.app/)
 
 ---
 
